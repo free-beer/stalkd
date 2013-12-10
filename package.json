@@ -1,6 +1,7 @@
 {
    "name": "stalkd",
    "description": "Library for interacting with the Beanstalk message queue.",
+   "homepage": "https://github.com/free-beer/stalkd",
    "authors": ["Peter Wood"],
    "license": "MIT",
    "copyright": "Copyright (c) 2103, Peter Wood.",
