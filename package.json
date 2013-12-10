@@ -4,7 +4,7 @@
    "homepage": "https://github.com/free-beer/stalkd",
    "authors": ["Peter Wood"],
    "license": "MIT",
-   "copyright": "Copyright (c) 2103, Peter Wood.",
+   "copyright": "Copyright (c) 2013, Peter Wood.",
    "targetPath": "bin",
    "configurations": [
       {"name": "standard",
