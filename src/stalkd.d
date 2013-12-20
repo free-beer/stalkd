@@ -370,7 +370,7 @@ class Tube {
 
       if(response.startsWith("RESERVED")) {
          uint      jobId;
-         uint      read,
+         ulong     read,
                    size;
          size_t[]  offsets = [0, 0, 0];
          OutBuffer buffer;
@@ -386,7 +386,7 @@ class Tube {
          size   = to!uint(response[(offsets[1] + 1)..offsets[2]]);
          read   = response.length - (offsets[2] + 2);
          buffer = new OutBuffer;
-         buffer.reserve(size);
+         buffer.reserve(cast(uint)size);
 
          if(read > 0) {
             auto endPoint  = response.length,
@@ -400,7 +400,7 @@ class Tube {
             buffer.write(response[(offsets[2] + 2)..endPoint]);
          }
          if(size > read) {
-            readInJobData(buffer, (size - read));
+            readInJobData(buffer, cast(uint)(size - read));
          }
 
          job      = new Job;
@@ -669,7 +669,7 @@ class Tube {
 
       if(response.startsWith("FOUND")) {
          uint      jobId;
-         uint      size,
+         ulong     size,
                    read;
          size_t[]  offsets = [0, 0, 0];
          OutBuffer buffer;
@@ -685,7 +685,7 @@ class Tube {
          size      = to!size_t(response[(offsets[1] + 1)..offsets[2]]);
          read      = response.length - (offsets[2] + 2);
          buffer = new OutBuffer;
-         buffer.reserve(size);
+         buffer.reserve(cast(uint)size);
 
          if(read > 0) {
             auto endPoint  = response.length,
@@ -699,7 +699,7 @@ class Tube {
             buffer.write(response[(offsets[2] + 2)..$]);
          }
          if(size > read) {
-            readInJobData(buffer, (size - read));
+            readInJobData(buffer, cast(uint)(size - read));
          }
 
          job      = new Job;
