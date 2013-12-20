@@ -1,4 +1,4 @@
-// D import file generated from 'src/stalkd.d'
+// D import file generated from 'src\stalkd.d'
 import std.algorithm;
 import std.array;
 import std.conv;
@@ -110,7 +110,7 @@ class Tube
 
 	private string receive();
 
-	private void readInJobData(ref OutBuffer buffer, ulong quantity);
+	private void readInJobData(ref OutBuffer buffer, uint quantity);
 
 	private Job peekFor(string type);
 

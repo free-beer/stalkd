@@ -370,9 +370,9 @@ class Tube {
 
       if(response.startsWith("RESERVED")) {
          uint      jobId;
-         long      size,
-                   read;
-         long[]    offsets = [0, 0, 0];
+         uint      read,
+                   size;
+         size_t[]  offsets = [0, 0, 0];
          OutBuffer buffer;
 
          offsets[0] = std.string.indexOf(response, " ");
@@ -623,7 +623,7 @@ class Tube {
     *    buffer =    The buffer to place the bytes read into.
     *    quantity =  The number of bytes of data to be read in.
     */
-   private void readInJobData(ref OutBuffer buffer, ulong quantity) {
+   private void readInJobData(ref OutBuffer buffer, uint quantity) {
       ubyte[] data  = new ubyte[quantity + 2];
       auto    total = _connection.socket.receive(data);
 
@@ -669,9 +669,9 @@ class Tube {
 
       if(response.startsWith("FOUND")) {
          uint      jobId;
-         long      size,
+         uint      size,
                    read;
-         long[]    offsets = [0, 0, 0];
+         size_t[]  offsets = [0, 0, 0];
          OutBuffer buffer;
 
          offsets[0] = std.string.indexOf(response, " ");
@@ -682,7 +682,7 @@ class Tube {
          }
 
          jobId     = to!uint(response[(offsets[0] + 1)..offsets[1]]);
-         size      = to!ulong(response[(offsets[1] + 1)..offsets[2]]);
+         size      = to!size_t(response[(offsets[1] + 1)..offsets[2]]);
          read      = response.length - (offsets[2] + 2);
          buffer = new OutBuffer;
          buffer.reserve(size);
