@@ -43,45 +43,31 @@ to your code...
    import stalkd;
 ```
 
-Once you've imported the library you next need to create a Server object. This
-requires the details for a host running the beanstalkd process. Examples of
-how you might create a Server object would include...
+Once you've imported the library the simplest thing to do is to obtain yourself
+a Tube. To do this you'll need to know the host/IP address for a Beanstalkd
+server and possibly it's port number (if it isn't using the standard one).
+Once you have these details you can obtain yourself a Tube instance as
+follows...
 
 ```
-   auto server1 = new Server("localhost"),
-        server2 = new Server("192.168.0.1", 5678);
+   auto tube1 = new Tube(Server("hostname")),
+        tube2 = new Tube(Server("192.168.0.1", 5678));
 ```
 
-In the first example you create a Server that expects the beanstalkd process to
-be running on localhost and on the default port of 11300. The second example
-indicates that the server is at the specified IP address and listening on port
-5678.
+You'd replace the host name and port number shown in these examples with the
+relevant host and port for your server.
 
-Once you have the server you can use it to obtain a Tube object which is the
-main class for interacting with Beanstalk jobs. In Beanstalk there are two
-concepts associated with tubes. Tubes can be used and they can be watched. A
-used tube is one to which submitted jobs will be added. You can only be using
-a single tube per Beanstalk connection. On the other hand you can be watching
-multiple tubes simultaneously. Watched tubes are ones that you're interested
-in knowing when jobs are available on them. Note that if a named tube does not
-exist on the server when you specify it then it is auto-created by the server
-itself.
+A Tube object is the main class for interacting with Beanstalk jobs. In Beanstalk
+there are two concepts associated with tubes. Tubes can be used and they can be
+watched. A used tube is one to which submitted jobs will be added. You can only
+be using a single tube per Beanstalk connection.
 
-Example code for obtaining a tube from a Server would be...
+On the other hand you can be watching multiple tubes simultaneously. Watched tubes
+are ones that you're interested in knowing when jobs are available on them. Note
+that if a named tube does not exist on the server when you specify that you want
+to watch it then it is auto-created by the server itself.
 
-```
-   auto tube1 = server.getTube(),
-        tube2 = server.getTube("other");
-```
-
-The first tube we retrieve and store in tube1 is connected to the default tube
-in Beanstalk (its name is actually "default"). Fetching a tube in this way we
-are using and watching only the default tube. With the second tube we fetch we
-specify the "other" name. This returns us a tube that is using the tube called
-other and watching the "default" tube.
-
-In the case of both tubes obtained above the type returned is stlakd.Tube. You
-can change the tube you're using in one of two ways...
+You can change the tube you're using in one of two ways...
 
 ```
    tube1.use("blah");
@@ -124,10 +110,10 @@ uint to the call to reserve() that specifies the maximum number of seconds that
 the server will wait for a job to become available before giving up. In the
 case of a job not being available a call to reserve() returns null.
 
-The jobs returned from a call to reserve() are of type stalkd.Job. Beanstalk
-considers all jobs to essentially be a collection of bytes. The Job class
-provides some convenience methods for converting these collection of bytes
-to and from strings. For example...
+The jobs returned from a call to reserve() are of type Job. Beanstalk considers
+all jobs to essentially be a collection of bytes. The Job class provides some
+convenience methods for converting these collection of bytes to and from strings.
+For example...
 
 ```
    string body = job.bodyAsString();
@@ -221,7 +207,8 @@ There are no access control mechanisms on any of the classes or entities within
 the library. Having said that the Server class is essentially immutable once
 created and each Tube fetched from a Server gets it's own connection to the
 Beanstalk server so you could share a Server instance between threads. You
-certainly should not share Tubes between threads however.
+certainly should not share Tubes between threads however and you definitely
+should not share a Connection between Tubes.
 
 ## Testing
 
@@ -229,7 +216,7 @@ To build the unit test application for the library issue the following command
 in the root directory of the repository...
 
 ```
-   $> dub build --config=test
+   $> dub test
 ```
 
 This should place a unit test executable into the bin directory upon completion.
@@ -239,11 +226,19 @@ port 11300 or localhost. If this is not the case then you can specify -h and
 -p flags when calling the executable to specify the host and port for the test
 Beanstalk server.
 
-## Issues
+Note that testing without connecting to an actual Beanstalkd instance is fairly
+limited. The test can run in 'advanced' mode if you have Beanstalkd instance
+that you can let them use. In this case you simply set the host name for the
+instance as the BEANSTALKD_TEST_HOST environment variable. On a Unix system
+you could do this with a command such as...
 
-This is my first library in D v2 so it's probably more than a little rough
-around the edges, comments and suggestions are welcome (or pull requests for
-that matter). The unit tests are cobbled together as well as the languages
-unit testing facilities aren't as advanced as scripting languages such as Ruby
-and the classes within the library don't really lend themselves to techniques
-such as mocking anyway.
+```
+   $> BEANSTALKD_TEST_HOST="127.0.0.1" dub test
+```
+
+The system will also recognise the BEANSTALKD_TEST_PORT environment setting as
+the port number for the Beanstalkd test instance if its set. If this is not set
+then the default port is assumed. Note that the Beanstalkd instance that you
+use for testing should not be used for anything else as the test code will
+add, query and destroy entries on the default tube, which is not the kind of
+activity that you'd want on an instance being used for other purposes.

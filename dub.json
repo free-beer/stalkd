@@ -1,19 +1,16 @@
 {
-   "name": "stalkd",
-   "description": "Library for interacting with the Beanstalk message queue.",
-   "homepage": "https://github.com/free-beer/stalkd",
-   "authors": ["Peter Wood"],
-   "license": "MIT",
-   "copyright": "Copyright (c) 2013, Peter Wood.",
-   "targetPath": "bin",
-   "configurations": [
+	"name": "stalkd",
+	"authors": [
+		"Peter Wood"
+	],
+	"description": "Library for interacting with the Beanstalk message queue.",
+	"copyright": "Copyright © 2013, Peter Wood",
+  "homepage": "https://github.com/free-beer/stalkd",
+	"license": "MIT",
+  "configurations": [
       {"name": "standard",
        "dflags": ["-Hf./bin/stalkd.di"],
-       "sourcePaths": ["src"],
-       "targetType": "staticLibrary"},
-      {"name": "test",
-       "sourcePaths": ["test"],
-       "targetName": "unittest",
-       "targetType": "executable"}
+       "sourcePaths": ["source"],
+       "targetType": "staticLibrary"}
    ]
 }
