@@ -192,13 +192,13 @@ jobs that vary these parameters...
 
 ```
    // Add a job with a five minute delay.
-   tube1.add(job, 300);
+   tube1.put(job, 300);
 
    // Add a job with no delay and a lower priority.
-   tube1.add(job, 0, 1000);
+   tube1.put(job, 0, 1000);
 
    // Add a job with a 1 minutes delay, highest priority and a 10 minute TTR.
-   tube1.add(job, 60, 0, 600);
+   tube1.put(job, 60, 0, 600);
 ```
 
 ## Thread Safety
