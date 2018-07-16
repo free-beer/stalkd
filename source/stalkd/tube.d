@@ -7,6 +7,7 @@ import std.conv;
 import std.outbuffer;
 import std.socket;
 import std.string;
+import std.typecons : Nullable;
 import stalkd.connection;
 import stalkd.exceptions;
 import stalkd.job;
@@ -215,7 +216,8 @@ class Tube {
 
    /**
     * This function attempts to reserve a job from one of the tubes that a Tube
-    * object is currently watching.
+    * object is currently watching. Note that the return type for the function
+    * is a Nullable!Job
     *
     * Params:
     *    timeOut = The maximum number of seconds for the server to wait for a
@@ -223,9 +225,9 @@ class Tube {
     *              function will return null. If set to zero, which is the
     *              default value, the function will block indefinitely.
     */
-   Job reserve(uint timeOut=0) {
-      Job    job;
-      char[] response = new char[100];
+   Nullable!Job reserve(uint timeOut=0) {
+      Nullable!Job output;
+      char[]       response = new char[100];
 
       if(timeOut > 0) {
          send(null, "reserve-with-timeout", timeOut);
@@ -276,16 +278,17 @@ class Tube {
             readInJobData(buffer, cast(uint)(size - read));
          }
 
-         job      = new Job;
+         auto job = new Job;
          job.id   = jobId;
          job.tube = this;
          job.write(buffer.toBytes());
+         output   = job;
       } else if(!response.startsWith("TIMED_OUT")) {
          response.chomp();
          throw(new StalkdException(to!string("2. Server returned a " ~ response ~ " error.")));
       }
 
-      return(job);
+      return(output);
    }
 
    /**
@@ -706,31 +709,32 @@ unittest {
 
 
       // Test: Reserve a job from a tube.
+      Nullable!Job reserved;
       void reserveJob() {
-         job = tube.reserve(3);
+         reserved = tube.reserve(3);
       }
       assertNotThrown!StalkdException(reserveJob);
-      assert(job !is null);
-      assert(job.bodyAsString() == "Job data.");
+      assert(!reserved.isNull);
+      assert(reserved.bodyAsString() == "Job data.");
 
       // Test: Releasing a job.
       void releaseJob() {
-         tube.releaseJob(job.id);
+         tube.releaseJob(reserved.id);
       }
       assertNotThrown!StalkdException(releaseJob);
 
       // Test: Deleting a job.
       void deleteJob() {
-         tube.deleteJob(job.id);
+         tube.deleteJob(reserved.id);
       }
       assertNotThrown!StalkdException(reserveJob);
-      assert(job !is null);
+      assert(!reserved.isNull);
       assertNotThrown!StalkdException(deleteJob);
       assert(tube.peek() is null);
 
       // Test: Burying a job.
       void buryJob() {
-         tube.buryJob(job.id);
+         tube.buryJob(reserved.id);
       }
       void peekBuried() {
          job = tube.peekBuried();
