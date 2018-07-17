@@ -215,17 +215,26 @@ class Tube {
    }
 
    /**
+    * A blocking implementation of the reserve() method that will not return
+    * until such time as a Job is available or an exception occurs.
+    */
+   Job reserve() {
+      return(reserve(0).get());
+   }
+
+   /**
     * This function attempts to reserve a job from one of the tubes that a Tube
     * object is currently watching. Note that the return type for the function
-    * is a Nullable!Job
+    * is a Nullable!Job. This value will test as null if a Job did not become
+    * available before the time out.
     *
     * Params:
     *    timeOut = The maximum number of seconds for the server to wait for a
     *              job to become available. If no job is available then the
-    *              function will return null. If set to zero, which is the
-    *              default value, the function will block indefinitely.
+    *              function will return null. If set to zero  the function will
+    *              block indefinitely (i.e. it won't time out).
     */
-   Nullable!Job reserve(uint timeOut=0) {
+   Nullable!Job reserve(uint timeOut) {
       Nullable!Job output;
       char[]       response = new char[100];
 
@@ -707,34 +716,43 @@ unittest {
       assert(job !is null);
       assert(job.bodyAsString() == "Job data.");
 
-
-      // Test: Reserve a job from a tube.
-      Nullable!Job reserved;
+      // Test: Reserve a job without timeout.
       void reserveJob() {
-         reserved = tube.reserve(3);
+         job = tube.reserve();
       }
       assertNotThrown!StalkdException(reserveJob);
-      assert(!reserved.isNull);
-      assert(reserved.bodyAsString() == "Job data.");
+      assert(job.bodyAsString() == "Job data.");
 
       // Test: Releasing a job.
       void releaseJob() {
-         tube.releaseJob(reserved.id);
+         tube.releaseJob(job.id);
       }
+      assertNotThrown!StalkdException(releaseJob);
+
+      // Test: Reserve a job from a tube with timeout.
+      Nullable!Job reserved;
+      void reserveJobWithTimeOut() {
+         reserved = tube.reserve(3);
+         if(!reserved.isNull) {
+            job = reserved.get();
+         }
+      }
+      assertNotThrown!StalkdException(reserveJobWithTimeOut);
+      assert(!reserved.isNull);
+      assert(job.bodyAsString() == "Job data.");
       assertNotThrown!StalkdException(releaseJob);
 
       // Test: Deleting a job.
       void deleteJob() {
-         tube.deleteJob(reserved.id);
+         tube.deleteJob(job.id);
       }
       assertNotThrown!StalkdException(reserveJob);
-      assert(!reserved.isNull);
       assertNotThrown!StalkdException(deleteJob);
       assert(tube.peek() is null);
 
       // Test: Burying a job.
       void buryJob() {
-         tube.buryJob(reserved.id);
+         tube.buryJob(job.id);
       }
       void peekBuried() {
          job = tube.peekBuried();
