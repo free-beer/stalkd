@@ -108,7 +108,8 @@ Note that in the example above the call to reserve will block until such time as
 a job becomes available. If you want to use a non-blocking request then pass a
 uint to the call to reserve() that specifies the maximum number of seconds that
 the server will wait for a job to become available before giving up. In the
-case of a job not being available a call to reserve() returns null.
+case of a job not being available a call to reserve() returns a Nullable
+instance that will return true for isNull.
 
 The jobs returned from a call to reserve() are of type Job. Beanstalk considers
 all jobs to essentially be a collection of bytes. The Job class provides some

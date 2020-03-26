@@ -281,13 +281,13 @@ unittest {
       assertNotThrown!StalkdException(getId);
 
       // Test: Releasing a job.
-      job = tube.reserve(3);
+      job = tube.reserve(3).get();
       assert(job !is null);
       assertNotThrown!StalkdException(callRelease);
       assert(tube.peek() !is null);
 
       // Test: Burying a job.
-      job = tube.reserve(3);
+      job = tube.reserve(3).get();
       assert(job !is null);
       assertNotThrown!StalkdException(callBury);
       assert(tube.peek() is null);
