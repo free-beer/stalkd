@@ -477,7 +477,9 @@ class Tube {
          buffer.write("\r\n");
       }
 
-      _connection.socket.send(buffer.toBytes());
+      if(_connection.socket.send(buffer.toBytes()) == Socket.ERROR) {
+         throw(new StalkdException("Error sending data on server connection."));
+      }
    }
 
    /**
